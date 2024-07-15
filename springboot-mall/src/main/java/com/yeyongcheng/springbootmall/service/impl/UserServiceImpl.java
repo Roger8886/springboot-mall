@@ -1,9 +1,11 @@
 package com.yeyongcheng.springbootmall.service.impl;
 
 import com.yeyongcheng.springbootmall.dao.UserDao;
+import com.yeyongcheng.springbootmall.dto.UserLoginRequest;
 import com.yeyongcheng.springbootmall.dto.UserRegisterRequest;
 import com.yeyongcheng.springbootmall.model.User;
 import com.yeyongcheng.springbootmall.service.UserService;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,5 +39,22 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserById(Integer userId) {
         return userDao.getUserById(userId);
+    }
+
+    @Override
+    public User login(@Valid UserLoginRequest userRegisterRequest) {
+        User user = userDao.getUserByEmail(userRegisterRequest.getEmail());
+
+        if (user == null) {
+            log.warn("該 email {} 尚未註冊", userRegisterRequest.getEmail());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
+        if (user.getPassword().equals(userRegisterRequest.getPassword())) {
+            return user;
+        } else {
+            log.warn("email {} 的密碼不正確", userRegisterRequest.getEmail());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
     }
 }
