@@ -49,23 +49,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User login(@Valid UserLoginRequest userRegisterRequest) {
-        User user = userDao.getUserByEmail(userRegisterRequest.getEmail());
+    public User login(@Valid UserLoginRequest userLoginRequest) {
+        User user = userDao.getUserByEmail(userLoginRequest.getEmail());
 
         // 檢查 user 是否存在
         if (user == null) {
-            log.warn("該 email {} 尚未註冊", userRegisterRequest.getEmail());
+            log.warn("該 email {} 尚未註冊", userLoginRequest.getEmail());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
         // 使用 MD5 生成密碼的雜湊值
-        String hashedPassword = DigestUtils.md5DigestAsHex(userRegisterRequest.getPassword().getBytes());
+        String hashedPassword = DigestUtils.md5DigestAsHex(userLoginRequest.getPassword().getBytes());
 
         // 比較密碼
         if (user.getPassword().equals(hashedPassword)) {
             return user;
         } else {
-            log.warn("email {} 的密碼不正確", userRegisterRequest.getEmail());
+            log.warn("email {} 的密碼不正確", userLoginRequest.getEmail());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
     }
